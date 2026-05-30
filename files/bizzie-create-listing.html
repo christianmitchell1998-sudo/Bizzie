@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Your Business — Bizzie</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple: #4B3FA0;
+    --purple-dark: #32296B;
+    --purple-light: #EEEDFE;
+    --purple-mid: #7F77DD;
+    --white: #ffffff;
+    --offwhite: #F9F8FC;
+    --text: #1a1a2e;
+    --text-muted: #6b6882;
+    --border: #e4e2f0;
+    --green: #0F6E56;
+    --green-light: #E1F5EE;
+    --radius: 12px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--offwhite); color: var(--text); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* NAV */
+  nav { background: white; border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--purple-dark); text-decoration: none; }
+  .logo span { color: var(--purple-mid); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); }
+  .nav-right a { color: var(--purple); text-decoration: none; font-weight: 500; }
+
+  /* LAYOUT */
+  .page-wrap { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+  /* PROGRESS */
+  .progress-header { margin-bottom: 2.5rem; }
+  .progress-steps { display: flex; align-items: center; gap: 0; margin-bottom: 1rem; }
+  .step-dot { display: flex; align-items: center; gap: 0; flex: 1; }
+  .step-dot:last-child { flex: 0; }
+  .dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; transition: all 0.3s; position: relative; z-index: 1; }
+  .dot.active { border-color: var(--purple); background: var(--purple); color: white; }
+  .dot.done { border-color: var(--green); background: var(--green); color: white; }
+  .step-line { flex: 1; height: 2px; background: var(--border); transition: background 0.3s; }
+  .step-line.done { background: var(--green); }
+  .step-labels { display: flex; justify-content: space-between; margin-top: 0.5rem; }
+  .step-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-align: center; flex: 1; }
+  .step-label:last-child { text-align: right; }
+  .step-label:first-child { text-align: left; }
+  .step-label.active { color: var(--purple); }
+  .step-label.done { color: var(--green); }
+
+  /* CARD */
+  .card { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 1.5rem; }
+  .card-header { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+  .step-indicator { font-size: 0.75rem; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--text); letter-spacing: -0.3px; margin-bottom: 0.3rem; }
+  .card-subtitle { font-size: 0.9rem; color: var(--text-muted); }
+
+  /* FORM */
+  .form-group { margin-bottom: 1.5rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+  label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+  .label-hint { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; margin-left: 0.4rem; }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=url], select, textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; background: white; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(75,63,160,0.08); }
+  textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+  .input-prefix { position: relative; }
+  .input-prefix span { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; font-weight: 500; pointer-events: none; }
+  .input-prefix input { padding-left: 2rem; }
+  .field-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem; }
+
+  /* CATEGORY GRID */
+  .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+  .cat-option { border: 1.5px solid var(--border); border-radius: 10px; padding: 1rem 0.75rem; text-align: center; cursor: pointer; transition: all 0.2s; background: white; }
+  .cat-option:hover { border-color: var(--purple-mid); background: var(--purple-light); }
+  .cat-option.selected { border-color: var(--purple); background: var(--purple-light); }
+  .cat-option input { display: none; }
+  .cat-icon { font-size: 1.5rem; margin-bottom: 0.4rem; display: block; }
+  .cat-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+
+  /* PHOTO UPLOAD */
+  .photo-upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--offwhite); position: relative; }
+  .photo-upload-zone:hover, .photo-upload-zone.dragover { border-color: var(--purple); background: var(--purple-light); }
+  .photo-upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .upload-title { font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.25rem; }
+  .upload-sub { font-size: 0.8rem; color: var(--text-muted); }
+  .photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-remove { position: absolute; top: 4px; right: 4px; background: rgba(15,13,30,0.7); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .photo-cover-badge { position: absolute; bottom: 4px; left: 4px; background: var(--purple); color: white; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+
+  /* LISTING PREVIEW */
+  .preview-card { border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .preview-image { height: 200px; background: var(--purple-light); display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
+  .preview-body { padding: 1.25rem; }
+  .preview-category { font-size: 0.75rem; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
+  .preview-title { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .preview-location { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+  .preview-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+  .preview-metric-val { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text); }
+  .preview-metric-label { display: block; font-size: 0.7rem; color: var(--text-muted); }
+  .preview-price { margin-top: 0.75rem; font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--purple-dark); }
+
+  /* REASON TILES */
+  .reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .reason-tile { border: 1.5px solid var(--border); border-radius: 10px; padding: 1rem; cursor: pointer; transition: all 0.2s; background: white; display: flex; align-items: flex-start; gap: 0.75rem; }
+  .reason-tile:hover { border-color: var(--purple-mid); background: var(--purple-light); }
+  .reason-tile.selected { border-color: var(--purple); background: var(--purple-light); }
+  .reason-tile input { display: none; }
+  .reason-emoji { font-size: 1.25rem; flex-shrink: 0; }
+  .reason-text strong { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text); }
+  .reason-text span { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* TOGGLE SWITCH */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: var(--offwhite); border-radius: 10px; border: 1.5px solid var(--border); margin-bottom: 0.75rem; }
+  .toggle-info strong { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text); }
+  .toggle-info span { font-size: 0.78rem; color: var(--text-muted); }
+  .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: 0.2s; }
+  .slider::before { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; left: 3px; top: 3px; transition: 0.2s; }
+  input:checked + .slider { background: var(--purple); }
+  input:checked + .slider::before { transform: translateX(20px); }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 1rem; justify-content: space-between; align-items: center; margin-top: 2rem; }
+  .btn { padding: 0.75rem 2rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--purple); color: white; }
+  .btn-primary:hover { background: var(--purple-dark); }
+  .btn-secondary { background: white; color: var(--text); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+  .btn-success { background: var(--green); color: white; padding: 0.875rem 2.5rem; font-size: 1rem; }
+  .btn-success:hover { background: #085041; }
+
+  /* HIGHLIGHT BOX */
+  .tip-box { background: var(--purple-light); border: 1.5px solid #CECBF6; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+  .tip-box .tip-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .tip-box p { font-size: 0.85rem; color: var(--purple-dark); line-height: 1.5; }
+  .tip-box strong { font-weight: 600; }
+
+  /* SUCCESS */
+  .success-screen { text-align: center; padding: 3rem 2rem; }
+  .success-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+  .success-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); margin-bottom: 0.75rem; }
+  .success-sub { color: var(--text-muted); font-size: 0.95rem; max-width: 480px; margin: 0 auto 2rem; }
+  .success-ref { background: var(--offwhite); border: 1.5px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; display: inline-block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; }
+  .success-ref strong { color: var(--purple); font-size: 1.1rem; display: block; }
+
+  .hidden { display: none !important; }
+  .step-hidden { position: absolute; left: -9999px; top: -9999px; visibility: hidden; pointer-events: none; }
+
+  /* CHAR COUNTER */
+  .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem; }
+  .char-count.warn { color: #BA7517; }
+  .char-count.over { color: #A32D2D; }
+
+  @media (max-width: 600px) {
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .reason-grid { grid-template-columns: 1fr; }
+    .card { padding: 1.5rem; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Bizzie<span>.</span></a>
+  <div class="nav-right">
+    <a href="mailto:help@bizzie.com.au">Get help</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-header">
+    <div class="progress-steps">
+      <div class="step-dot">
+        <div class="dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+      </div>
+      <div class="step-dot">
+        <div class="dot" id="dot-2">2</div>
+        <div class="step-line" id="line-2"></div>
+      </div>
+      <div class="step-dot">
+        <div class="dot" id="dot-3">3</div>
+        <div class="step-line" id="line-3"></div>
+      </div>
+      <div class="step-dot">
+        <div class="dot" id="dot-4">4</div>
+        <div class="step-line" id="line-4"></div>
+      </div>
+      <div class="step-dot">
+        <div class="dot" id="dot-5">5</div>
+        <div class="step-line" id="line-5"></div>
+      </div>
+      <div class="step-dot">
+        <div class="dot" id="dot-6">6</div>
+      </div>
+    </div>
+    <div class="step-labels">
+      <span class="step-label active" id="label-1">Category</span>
+      <span class="step-label" id="label-2">Basics</span>
+      <span class="step-label" id="label-3">Financials</span>
+      <span class="step-label" id="label-4">Story</span>
+      <span class="step-label" id="label-5">Photos</span>
+      <span class="step-label" id="label-6">Review</span>
+    </div>
+  </div>
+
+  <!-- STEP 1: CATEGORY -->
+  <div id="step-1">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 1 of 6</div>
+        <h1 class="card-title">What kind of business are you selling?</h1>
+        <p class="card-subtitle">Pick the category that best describes your business. This helps buyers find you.</p>
+      </div>
+
+      <div class="category-grid">
+        <label class="cat-option" onclick="selectCat(this, '☕', 'Cafe & Restaurant')">
+          <input type="radio" name="category" value="Cafe & Restaurant">
+          <span class="cat-icon">☕</span>
+          <span class="cat-name">Cafe & Restaurant</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '💻', 'Technology')">
+          <input type="radio" name="category" value="Technology">
+          <span class="cat-icon">💻</span>
+          <span class="cat-name">Technology & SaaS</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🛍️', 'Retail')">
+          <input type="radio" name="category" value="Retail">
+          <span class="cat-icon">🛍️</span>
+          <span class="cat-name">Retail</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '💆', 'Health & Beauty')">
+          <input type="radio" name="category" value="Health & Beauty">
+          <span class="cat-icon">💆</span>
+          <span class="cat-name">Health & Beauty</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '📦', 'Ecommerce')">
+          <input type="radio" name="category" value="Ecommerce">
+          <span class="cat-icon">📦</span>
+          <span class="cat-name">Ecommerce</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🔧', 'Trade & Services')">
+          <input type="radio" name="category" value="Trade & Services">
+          <span class="cat-icon">🔧</span>
+          <span class="cat-name">Trade & Services</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🏥', 'Healthcare')">
+          <input type="radio" name="category" value="Healthcare">
+          <span class="cat-icon">🏥</span>
+          <span class="cat-name">Healthcare</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🎓', 'Education')">
+          <input type="radio" name="category" value="Education">
+          <span class="cat-icon">🎓</span>
+          <span class="cat-name">Education</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🏗️', 'Construction')">
+          <input type="radio" name="category" value="Construction">
+          <span class="cat-icon">🏗️</span>
+          <span class="cat-name">Construction</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🍕', 'Food & Beverage')">
+          <input type="radio" name="category" value="Food & Beverage">
+          <span class="cat-icon">🍕</span>
+          <span class="cat-name">Food & Beverage</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '🚗', 'Automotive')">
+          <input type="radio" name="category" value="Automotive">
+          <span class="cat-icon">🚗</span>
+          <span class="cat-name">Automotive</span>
+        </label>
+        <label class="cat-option" onclick="selectCat(this, '📋', 'Other')">
+          <input type="radio" name="category" value="Other">
+          <span class="cat-icon">📋</span>
+          <span class="cat-name">Other</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <span style="font-size:0.85rem; color:var(--text-muted);">Your progress is saved automatically</span>
+      <button class="btn btn-primary" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: BASICS -->
+  <div id="step-2" class="step-hidden">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 2 of 6</div>
+        <h1 class="card-title">Tell us the basics</h1>
+        <p class="card-subtitle">Think of this like the headline on a property listing. Clear and specific gets more enquiries.</p>
+      </div>
+
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <p><strong>Pro tip:</strong> Listings with specific, descriptive titles get 3x more views. Instead of "Cafe for sale", try "Established specialty coffee bar in South Yarra, loyal regulars, full equipment included".</p>
+      </div>
+
+      <div class="form-group">
+        <label>Listing title <span class="label-hint">Make it specific and compelling</span></label>
+        <input type="text" id="listing-title" placeholder="e.g. Profitable specialty coffee bar in South Yarra — 6 years established" maxlength="120" oninput="updateCharCount(this, 'title-count', 120); updatePreview()">
+        <div class="char-count" id="title-count">0 / 120</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>State</label>
+          <select id="state" onchange="updatePreview()">
+            <option value="">Select state</option>
+            <option>New South Wales</option>
+            <option>Victoria</option>
+            <option>Queensland</option>
+            <option>Western Australia</option>
+            <option>South Australia</option>
+            <option>Tasmania</option>
+            <option>ACT</option>
+            <option>Northern Territory</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>City / Suburb</label>
+          <input type="text" id="suburb" placeholder="e.g. South Yarra" oninput="updatePreview()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year established</label>
+          <input type="number" id="year-est" placeholder="e.g. 2018" min="1900" max="2026" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>Number of employees</label>
+          <select id="employees">
+            <option>Just me (sole operator)</option>
+            <option>2 to 5</option>
+            <option>6 to 15</option>
+            <option>16 to 50</option>
+            <option>50+</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Reason for selling <span class="label-hint">Buyers always ask — be upfront</span></label>
+        <div class="reason-grid">
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="retirement">
+            <span class="reason-emoji">🌅</span>
+            <div class="reason-text"><strong>Retirement</strong><span>Ready to wind down</span></div>
+          </label>
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="new-venture">
+            <span class="reason-emoji">🚀</span>
+            <div class="reason-text"><strong>New venture</strong><span>Moving on to something new</span></div>
+          </label>
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="relocation">
+            <span class="reason-emoji">✈️</span>
+            <div class="reason-text"><strong>Relocation</strong><span>Moving interstate or overseas</span></div>
+          </label>
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="lifestyle">
+            <span class="reason-emoji">🏖️</span>
+            <div class="reason-text"><strong>Lifestyle change</strong><span>Seeking a change of pace</span></div>
+          </label>
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="partnership">
+            <span class="reason-emoji">🤝</span>
+            <div class="reason-text"><strong>Partnership dissolution</strong><span>Partners going separate ways</span></div>
+          </label>
+          <label class="reason-tile" onclick="selectReason(this)">
+            <input type="radio" name="reason" value="other">
+            <span class="reason-emoji">💬</span>
+            <div class="reason-text"><strong>Other</strong><span>I will explain in my description</span></div>
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: FINANCIALS -->
+  <div id="step-3" class="step-hidden">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 3 of 6</div>
+        <h1 class="card-title">The numbers that matter</h1>
+        <p class="card-subtitle">Buyers make decisions based on financials. The more transparent you are, the more serious the enquiries you attract.</p>
+      </div>
+
+      <div class="tip-box">
+        <span class="tip-icon">📊</span>
+        <p><strong>What is EBITDA?</strong> Earnings before interest, tax, depreciation and amortisation. It is the most common way buyers assess profitability. If you are not sure, use your net profit as a starting point.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Asking price</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="asking-price" placeholder="450000" oninput="updatePreview()"></div>
+          <p class="field-hint">Leave blank if negotiable or price on application</p>
+        </div>
+        <div class="form-group">
+          <label>Price basis</label>
+          <select id="price-basis">
+            <option>Fixed price</option>
+            <option>Price on application (POA)</option>
+            <option>Negotiable</option>
+            <option>Auction</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Annual revenue</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="revenue" placeholder="280000" oninput="updatePreview()"></div>
+        </div>
+        <div class="form-group">
+          <label>Annual net profit</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="net-profit" placeholder="85000" oninput="updatePreview()"></div>
+        </div>
+        <div class="form-group">
+          <label>EBITDA <span class="label-hint">optional</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="ebitda" placeholder="95000"></div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Stock / inventory value <span class="label-hint">optional</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="stock-value" placeholder="0"></div>
+          <p class="field-hint">Estimated value of included stock</p>
+        </div>
+        <div class="form-group">
+          <label>Plant & equipment value <span class="label-hint">optional</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="plant-value" placeholder="0"></div>
+          <p class="field-hint">Value of equipment included in sale</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lease term remaining <span class="label-hint">if applicable</span></label>
+          <select id="lease-term">
+            <option>No lease (home-based or online)</option>
+            <option>Month to month</option>
+            <option>Less than 1 year</option>
+            <option>1 to 2 years</option>
+            <option>2 to 5 years</option>
+            <option>5+ years</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Monthly rent <span class="label-hint">if applicable</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="monthly-rent" placeholder="3500"></div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:0.5rem;">
+        <p style="font-size:0.85rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;">What is included in the sale?</p>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Goodwill & trading name</strong><span>The brand, customer relationships and reputation</span></div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Plant & equipment</strong><span>Machinery, fit-out, fixtures and fittings</span></div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Stock / inventory</strong><span>Current stock at the time of settlement</span></div>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Intellectual property</strong><span>Trademarks, patents, software, systems</span></div>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Existing staff / team</strong><span>Key employees expected to stay on</span></div>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>Training / handover period</strong><span>Seller willing to stay on and train the buyer</span></div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: STORY -->
+  <div id="step-4" class="step-hidden">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 4 of 6</div>
+        <h1 class="card-title">Tell your business story</h1>
+        <p class="card-subtitle">This is where buyers decide whether to reach out. Write like you are talking to a smart, curious person who wants to understand what they are buying.</p>
+      </div>
+
+      <div class="tip-box">
+        <span class="tip-icon">✍️</span>
+        <p><strong>What makes a great description?</strong> Cover what the business does, what makes it different, who the customers are, what comes with the sale, and why it is a good opportunity. You do not need to reveal everything — just enough to get serious buyers asking questions.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Business overview <span class="label-hint">The main description buyers will read</span></label>
+        <textarea id="description" placeholder="Describe your business in your own words. What does it do? How long has it been operating? What makes it special? Who are your typical customers?" maxlength="2000" oninput="updateCharCount(this, 'desc-count', 2000)" rows="8"></textarea>
+        <div class="char-count" id="desc-count">0 / 2000</div>
+      </div>
+
+      <div class="form-group">
+        <label>What makes this business stand out? <span class="label-hint">optional but powerful</span></label>
+        <textarea id="highlights" placeholder="e.g. Strong repeat customer base, prime location, exclusive supplier agreements, proprietary systems, awards won..." maxlength="500" oninput="updateCharCount(this, 'hl-count', 500)" rows="4"></textarea>
+        <div class="char-count" id="hl-count">0 / 500</div>
+      </div>
+
+      <div class="form-group">
+        <label>Growth opportunities <span class="label-hint">optional — buyers love this</span></label>
+        <textarea id="growth" placeholder="e.g. Currently only open 5 days — extending hours could add 20% revenue. Online ordering not yet set up. Catering has never been explored..." maxlength="500" oninput="updateCharCount(this, 'growth-count', 500)" rows="4"></textarea>
+        <div class="char-count" id="growth-count">0 / 500</div>
+      </div>
+
+      <div class="form-group">
+        <label>Ideal buyer <span class="label-hint">optional</span></label>
+        <input type="text" id="ideal-buyer" placeholder="e.g. Someone with hospitality experience, or an investor comfortable with owner-operator management">
+      </div>
+
+      <div class="form-group">
+        <label>Confidentiality level</label>
+        <select id="confidentiality">
+          <option>Public listing — show business name and location</option>
+          <option>Semi-confidential — show suburb and category only</option>
+          <option>Confidential — only share details after buyer signs NDA</option>
+        </select>
+        <p class="field-hint">Most sellers choose semi-confidential to attract buyers without alerting staff or competitors.</p>
+      </div>
+
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: PHOTOS -->
+  <div id="step-5" class="step-hidden">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 5 of 6</div>
+        <h1 class="card-title">Add photos</h1>
+        <p class="card-subtitle">Listings with photos get 5x more enquiries. Show the space, the team, the product — whatever makes your business come alive.</p>
+      </div>
+
+      <div class="tip-box">
+        <span class="tip-icon">📸</span>
+        <p><strong>What photos work best?</strong> The exterior, the interior in action, any key equipment, the product or service in use. Avoid blurry or dark shots. The first photo becomes your listing cover image.</p>
+      </div>
+
+      <div class="photo-upload-zone" id="upload-zone">
+        <input type="file" accept="image/*" multiple onchange="handlePhotos(this)" id="photo-input">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Drag and drop photos here, or click to browse</div>
+        <div class="upload-sub">JPG, PNG or WEBP — up to 20 photos, max 10MB each</div>
+      </div>
+
+      <div class="photos-grid" id="photos-grid"></div>
+
+      <div style="margin-top:1.5rem;" id="photo-tip" class="hidden">
+        <p style="font-size:0.82rem; color:var(--text-muted);">The first photo is your cover image. Drag to reorder. Click ✕ to remove.</p>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="border-bottom:none; padding-bottom:0; margin-bottom:0.5rem;">
+        <div class="step-indicator">Your contact details</div>
+        <h2 class="card-title" style="font-size:1.2rem;">How should buyers reach you?</h2>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your name</label>
+          <input type="text" id="contact-name" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label>Contact email</label>
+          <input type="email" id="contact-email" placeholder="your@email.com">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone number <span class="label-hint">optional</span></label>
+          <input type="tel" id="contact-phone" placeholder="+61 4xx xxx xxx">
+        </div>
+        <div class="form-group">
+          <label>Preferred contact method</label>
+          <select>
+            <option>Email only</option>
+            <option>Email and phone</option>
+            <option>Phone preferred</option>
+          </select>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Hide my email from public listing</strong><span>Buyers contact you through Bizzie's messaging system</span></div>
+        <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(6)">Preview my listing →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: REVIEW -->
+  <div id="step-6" class="step-hidden">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-indicator">Step 6 of 6</div>
+        <h1 class="card-title">Review your listing</h1>
+        <p class="card-subtitle">This is exactly how your listing will appear to buyers. Happy with it? Choose your plan and go live.</p>
+      </div>
+
+      <div class="preview-card">
+        <div class="preview-image" id="preview-image-area">
+          <span id="preview-emoji">📋</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-category" id="preview-category">Category</div>
+          <div class="preview-title" id="preview-title">Your listing title will appear here</div>
+          <div class="preview-location" id="preview-location">📍 Location</div>
+          <div class="preview-metrics">
+            <div><span class="preview-metric-val" id="preview-revenue">—</span><span class="preview-metric-label">Revenue/yr</span></div>
+            <div><span class="preview-metric-val" id="preview-profit">—</span><span class="preview-metric-label">Net profit</span></div>
+            <div><span class="preview-metric-val" id="preview-years">—</span><span class="preview-metric-label">Established</span></div>
+          </div>
+          <div class="preview-price" id="preview-price">$ —</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHOOSE PLAN -->
+    <div class="card">
+      <div class="card-header" style="border-bottom:none; padding-bottom:0; margin-bottom:1.5rem;">
+        <h2 class="card-title" style="font-size:1.3rem;">Choose your listing plan</h2>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+        <label style="border:1.5px solid var(--border); border-radius:12px; padding:1.25rem; cursor:pointer; transition:all 0.2s; display:block;" onclick="selectPlan(this, 'standard')">
+          <input type="radio" name="plan" value="standard" style="display:none">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Standard</div>
+          <div style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--purple-dark); margin-bottom:0.25rem;">$99</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">one-time · live until sold</div>
+        </label>
+        <label style="border:2px solid var(--purple); border-radius:12px; padding:1.25rem; cursor:pointer; transition:all 0.2s; display:block; background:var(--purple-light);" onclick="selectPlan(this, 'featured')">
+          <input type="radio" name="plan" value="featured" style="display:none" checked>
+          <div style="font-size:0.75rem; font-weight:700; color:var(--purple); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Featured ⭐ Most popular</div>
+          <div style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--purple-dark); margin-bottom:0.25rem;">$199</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">one-time · priority placement</div>
+        </label>
+        <label style="border:1.5px solid var(--border); border-radius:12px; padding:1.25rem; cursor:pointer; transition:all 0.2s; display:block;" onclick="selectPlan(this, 'premium')">
+          <input type="radio" name="plan" value="premium" style="display:none">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">Premium</div>
+          <div style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--purple-dark); margin-bottom:0.25rem;">$349</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">one-time · homepage spotlight</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(5)">← Back</button>
+      <button class="btn btn-success" onclick="submitListing()">🎉 Publish my listing</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="step-success" class="hidden">
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <h2 class="success-title">Your listing is live!</h2>
+        <p class="success-sub">Congratulations. Your business is now visible to thousands of serious buyers on Bizzie. We will notify you the moment your first enquiry comes in.</p>
+        <div class="success-ref">
+          Your listing reference<br>
+          <strong id="listing-ref">BIZ-2026-XXXXX</strong>
+        </div>
+        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+          <a href="index.html" class="btn btn-primary" style="text-decoration:none;">View your listing</a>
+          <button class="btn btn-secondary" onclick="shareListing()">Share your listing</button>
+        </div>
+        <p style="margin-top:2rem; font-size:0.85rem; color:var(--text-muted);">A confirmation has been sent to your email. Questions? <a href="mailto:help@bizzie.com.au" style="color:var(--purple);">Contact us</a>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://xxtzurdzahjbsutfeatj.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dHp1cmR6YWhqYnN1dGZlYXRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDY3NjksImV4cCI6MjA5NTcyMjc2OX0.pJ5mSC4GviEkrlexi85MmIsT6kYV2k03FtLzERHDGgY';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentStep = 1;
+  let selectedCatEmoji = '📋';
+  let selectedCatName = 'Category';
+  let uploadedPhotos = [];
+  let uploadedFiles = [];
+  let currentUser = null;
+  let selectedPlan = 'featured';
+
+  // Check auth on load
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'bizzie-auth.html';
+      return;
+    }
+    currentUser = session.user;
+    // Pre-fill contact details
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+    if (profile) {
+      const nameEl = document.getElementById('contact-name');
+      const emailEl = document.getElementById('contact-email');
+      const phoneEl = document.getElementById('contact-phone');
+      if (nameEl && !nameEl.value) nameEl.value = profile.full_name || '';
+      if (emailEl && !emailEl.value) emailEl.value = profile.email || currentUser.email;
+      if (phoneEl && !phoneEl.value) phoneEl.value = profile.phone || '';
+    }
+  }
+  init();
+
+  function goStep(n) {
+    // Hide current step using step-hidden (preserves input values in DOM)
+    const cur = document.getElementById('step-' + currentStep);
+    if (cur) { cur.classList.remove('hidden'); cur.classList.add('step-hidden'); }
+
+    if (n === 'success') {
+      document.getElementById('step-success').classList.remove('hidden');
+    } else {
+      const next = document.getElementById('step-' + n);
+      if (next) { next.classList.remove('step-hidden'); next.classList.remove('hidden'); }
+    }
+
+    for (let i = 1; i <= 6; i++) {
+      const dot = document.getElementById('dot-' + i);
+      const label = document.getElementById('label-' + i);
+      dot.classList.remove('active', 'done');
+      label.classList.remove('active', 'done');
+      if (i < n) { dot.classList.add('done'); dot.innerHTML = '✓'; label.classList.add('done'); }
+      else if (i === n) { dot.classList.add('active'); dot.innerHTML = i; label.classList.add('active'); }
+      else { dot.innerHTML = i; }
+      if (i < 6) {
+        const line = document.getElementById('line-' + i);
+        line.classList.toggle('done', i < n);
+      }
+    }
+    currentStep = n;
+    updatePreview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function selectCat(el, emoji, name) {
+    // Prevent the label's default from firing twice
+    document.querySelectorAll('.cat-option').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCatEmoji = emoji;
+    selectedCatName = name;
+    // Also check the hidden radio input so form state is consistent
+    const radio = el.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+    updatePreview();
+  }
+
+  function selectReason(el) {
+    document.querySelectorAll('.reason-tile').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    const radio = el.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+  }
+
+  function selectPlan(el, plan) {
+    selectedPlan = plan;
+    document.querySelectorAll('[onclick^="selectPlan"]').forEach(p => {
+      p.style.border = '1.5px solid var(--border)';
+      p.style.background = 'white';
+    });
+    el.style.border = '2px solid var(--purple)';
+    el.style.background = 'var(--purple-light)';
+  }
+
+  function updatePreview() {
+    const title = document.getElementById('listing-title');
+    const suburb = document.getElementById('suburb');
+    const state = document.getElementById('state');
+    const revenue = document.getElementById('revenue');
+    const profit = document.getElementById('net-profit');
+    const price = document.getElementById('asking-price');
+    const yearEst = document.getElementById('year-est');
+
+    if (title) document.getElementById('preview-title').textContent = title.value || 'Your listing title will appear here';
+    document.getElementById('preview-category').textContent = selectedCatName;
+    document.getElementById('preview-emoji').textContent = selectedCatEmoji;
+
+    const loc = [suburb ? suburb.value : '', state ? state.value : ''].filter(Boolean).join(', ');
+    document.getElementById('preview-location').textContent = '📍 ' + (loc || 'Location');
+
+    if (revenue && revenue.value) document.getElementById('preview-revenue').textContent = '$' + formatNum(revenue.value);
+    if (profit && profit.value) document.getElementById('preview-profit').textContent = '$' + formatNum(profit.value);
+    if (yearEst && yearEst.value) document.getElementById('preview-years').textContent = (2026 - parseInt(yearEst.value)) + ' yrs';
+    if (price && price.value) document.getElementById('preview-price').textContent = '$' + parseInt(price.value).toLocaleString();
+
+    if (uploadedPhotos.length > 0) {
+      document.getElementById('preview-image-area').innerHTML = '<img src="' + uploadedPhotos[0] + '" style="width:100%;height:100%;object-fit:cover;">';
+    }
+  }
+
+  function formatNum(n) {
+    const num = parseInt(n);
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return Math.round(num / 1000) + 'k';
+    return num.toLocaleString();
+  }
+
+  function updateCharCount(el, countId, max) {
+    const count = el.value.length;
+    const counter = document.getElementById(countId);
+    counter.textContent = count + ' / ' + max;
+    counter.className = 'char-count' + (count > max * 0.9 ? (count >= max ? ' over' : ' warn') : '');
+  }
+
+  function handlePhotos(input) {
+    const files = Array.from(input.files);
+    files.forEach(file => {
+      if (uploadedPhotos.length >= 20) return;
+      uploadedFiles.push(file);
+      const reader = new FileReader();
+      reader.onload = e => {
+        uploadedPhotos.push(e.target.result);
+        renderPhotos();
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotos() {
+    const grid = document.getElementById('photos-grid');
+    grid.innerHTML = uploadedPhotos.map((src, i) => `
+      <div class="photo-thumb">
+        <img src="${src}" alt="Photo ${i+1}">
+        ${i === 0 ? '<div class="photo-cover-badge">Cover</div>' : ''}
+        <button class="photo-remove" onclick="removePhoto(${i})">✕</button>
+      </div>
+    `).join('');
+    document.getElementById('photo-tip').classList.toggle('hidden', uploadedPhotos.length === 0);
+  }
+
+  function removePhoto(i) {
+    uploadedPhotos.splice(i, 1);
+    renderPhotos();
+    updatePreview();
+  }
+
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const dt = e.dataTransfer;
+    if (dt.files.length) {
+      const fakeInput = { files: dt.files };
+      handlePhotos(fakeInput);
+    }
+  });
+
+  async function submitListing() {
+    if (!currentUser) return window.location.href = 'bizzie-auth.html';
+
+    const btn = document.querySelector('.btn-success');
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:0.5rem;"></span>Publishing...';
+
+    try {
+      // 1. Upload photos to Supabase Storage
+      const photoUrls = [];
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const file = uploadedFiles[i];
+        const ext = file.name.split('.').pop();
+        const path = `${currentUser.id}/${Date.now()}-${i}.${ext}`;
+        const { data, error } = await supabase.storage.from('listing-photos').upload(path, file, { upsert: true });
+        if (!error) {
+          const { data: urlData } = supabase.storage.from('listing-photos').getPublicUrl(path);
+          photoUrls.push(urlData.publicUrl);
+        }
+      }
+
+      // 2. Gather all form values
+      const inclusions = document.querySelectorAll('.toggle input[type=checkbox]');
+      const listing = {
+        seller_id: currentUser.id,
+        status: 'active',
+        plan: selectedPlan,
+        category: selectedCatName,
+        category_emoji: selectedCatEmoji,
+        title: document.getElementById('listing-title')?.value || '',
+        state: document.getElementById('state')?.value || '',
+        suburb: document.getElementById('suburb')?.value || '',
+        year_established: parseInt(document.getElementById('year-est')?.value) || null,
+        employees: document.getElementById('employees')?.value || '',
+        reason_for_selling: document.querySelector('input[name="reason"]:checked')?.value || '',
+        asking_price: parseFloat(document.getElementById('asking-price')?.value) || null,
+        price_basis: document.getElementById('price-basis')?.value || 'Fixed price',
+        annual_revenue: parseFloat(document.getElementById('revenue')?.value) || null,
+        annual_net_profit: parseFloat(document.getElementById('net-profit')?.value) || null,
+        ebitda: parseFloat(document.getElementById('ebitda')?.value) || null,
+        stock_value: parseFloat(document.getElementById('stock-value')?.value) || null,
+        plant_value: parseFloat(document.getElementById('plant-value')?.value) || null,
+        lease_term: document.getElementById('lease-term')?.value || '',
+        monthly_rent: parseFloat(document.getElementById('monthly-rent')?.value) || null,
+        includes_goodwill: inclusions[0]?.checked ?? true,
+        includes_plant: inclusions[1]?.checked ?? true,
+        includes_stock: inclusions[2]?.checked ?? false,
+        includes_ip: inclusions[3]?.checked ?? false,
+        includes_staff: inclusions[4]?.checked ?? false,
+        includes_training: inclusions[5]?.checked ?? true,
+        description: document.getElementById('description')?.value || '',
+        highlights: document.getElementById('highlights')?.value || '',
+        growth_opportunities: document.getElementById('growth')?.value || '',
+        ideal_buyer: document.getElementById('ideal-buyer')?.value || '',
+        confidentiality: document.getElementById('confidentiality')?.value || '',
+        contact_name: document.getElementById('contact-name')?.value || '',
+        contact_email: document.getElementById('contact-email')?.value || '',
+        contact_phone: document.getElementById('contact-phone')?.value || '',
+        contact_preference: document.querySelector('#step-5 select')?.value || 'Email only',
+        hide_email: document.querySelector('.toggle input[type=checkbox]:last-of-type')?.checked ?? true,
+        photos: photoUrls,
+        published_at: new Date().toISOString()
+      };
+
+      // 3. Insert into database
+      const { data, error } = await supabase.from('listings').insert(listing).select().single();
+      if (error) throw error;
+
+      // 4. Show success
+      const ref = 'BIZ-' + data.id.substring(0, 8).toUpperCase();
+      document.getElementById('listing-ref').textContent = ref;
+      document.getElementById('step-6').classList.add('hidden');
+      document.getElementById('step-success').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '🎉 Publish my listing';
+      alert('Something went wrong: ' + err.message + '. Please try again.');
+    }
+  }
+
+  function shareListing() {
+    if (navigator.share) {
+      navigator.share({ title: 'My Bizzie listing', url: window.location.href });
+    } else {
+      alert('Copy this link to share your listing: ' + window.location.href);
+    }
+  }
+</script>
+</body>
+</html>
